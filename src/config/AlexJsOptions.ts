@@ -11,8 +11,11 @@ export const AlexJsOptions: {
 		noBinary: true,
 		// AlexJS to ignore these grouped words https://github.com/retextjs/retext-equality/blob/main/rules.md
 		allow: [
+			"aunt-uncle",
+			"aunts-uncles",
+			"gals-man",
+			"boy-girl",
 			"invalid",
-			"he-she",
 			"dad-mom",
 			"daft",
 			"fellow",
