@@ -9,24 +9,26 @@ export const checkBannedWords = async (
 	content: string,
 	serverId: string
 ): Promise<EmbedBuilder[]> => {
-	const embeds: EmbedBuilder[] = [];
+	let embeds: EmbedBuilder[] = [];
 	try {
 		const config = await getBannedWordConfig(bot, serverId);
 		const checkWords = config.bannedWordConfig as Array<string>;
-
-		const embed = new EmbedBuilder();
-		embed.setTitle("Hold up!");
-		embed.setColor("#2B2D31");
-		embed.setDescription("That's bad");
-		embeds.push(embed);
-
-		const uniqueMessages = new Set();
+		let badword = false;
 
 		if (checkWords && checkWords!.length > 0) {
+			const uniqueMessages = new Set();
+
+			const embed = new EmbedBuilder();
+			embed.setTitle("Hold up!");
+			embed.setColor("#2B2D31");
+			embed.setDescription("That's bad");
+
 			content.split(" ").forEach((word) => {
 				if (word && !uniqueMessages.has(word.toLowerCase())) {
 					if (checkWords!.includes(word.toLowerCase())) {
 						uniqueMessages.add(word.toLowerCase());
+						badword = true;
+
 						embed.addFields({
 							name: `Don't use it, \`${word}\` is offensive.`,
 							value: "see above ^",
@@ -34,7 +36,11 @@ export const checkBannedWords = async (
 					}
 				}
 			});
+
+			embeds.push(embed);
 		}
+
+		if (!badword) embeds = [];
 
 		return embeds;
 	} catch (error) {
