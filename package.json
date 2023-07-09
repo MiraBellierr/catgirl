@@ -8,6 +8,7 @@
   "scripts": {
     "prebuild": "rimraf prod",
     "test": "tsc && node -r dotenv/config prod/main.js",
+    "build": "tsc",
     "start": "node -r dotenv/config prod/main.js"
   },
   "dependencies": {

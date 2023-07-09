@@ -4,7 +4,12 @@ import { EmbedBuilder } from "discord.js";
 import { ExtendedClient } from "../interfaces/ExtendedClient";
 import { errorHandler } from "../utils/errorHandler";
 import { getAlexConfig } from "../utils/getAlexConfig";
-import { AlexJsOptions } from "../config/AlexJsOptions";
+
+interface AlexConfig {
+	allow: Array<string>;
+	profanitySureness: 0 | 1 | 2;
+	noBinary: boolean;
+}
 
 export const checkContent = async (
 	bot: ExtendedClient,
@@ -13,9 +18,12 @@ export const checkContent = async (
 ): Promise<EmbedBuilder[]> => {
 	try {
 		const config = await getAlexConfig(bot, serverId);
+		const { allow, profanitySureness, noBinary } =
+			config.alexConfig as AlexConfig;
 		const rawResult = alex.markdown(content, {
-			...AlexJsOptions.alexWhitelist,
-			...config.alexConfig,
+			allow,
+			profanitySureness,
+			noBinary,
 		}).messages;
 		let embeds: EmbedBuilder[] = [];
 
@@ -27,8 +35,11 @@ export const checkContent = async (
 		const uniqueMessages = new Set();
 
 		for (const message of rawResult) {
-			if (message.actual && !uniqueMessages.has(message.actual)) {
-				uniqueMessages.add(message.actual);
+			if (
+				message.actual &&
+				!uniqueMessages.has((message.actual as string).toLowerCase())
+			) {
+				uniqueMessages.add((message.actual as string).toLowerCase());
 				let response;
 				if (!message.note) {
 					response = "see above.";
