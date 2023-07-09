@@ -18,6 +18,12 @@ const addSubCommand = () => {
 		);
 };
 
+const listSubCommand = () => {
+	return new SlashCommandSubcommandBuilder()
+		.setName("list")
+		.setDescription("the banned list");
+};
+
 const deleteSubCommand = () => {
 	return new SlashCommandSubcommandBuilder()
 		.setName("delete")
@@ -34,6 +40,7 @@ export const bannedword: Command = {
 	data: new SlashCommandBuilder()
 		.setName("bannedword")
 		.setDescription("edit list of the banned words")
+		.addSubcommand(listSubCommand)
 		.addSubcommand(addSubCommand)
 		.addSubcommand(deleteSubCommand),
 	run: async (bot, interaction) => {
@@ -41,7 +48,7 @@ export const bannedword: Command = {
 			interaction.reply(
 				await addWord(bot, interaction, interaction.options.getString("word")!)
 			);
-		} else {
+		} else if (interaction.options.getSubcommand() === "delete") {
 			interaction.reply(
 				await deleteWord(
 					bot,
@@ -49,6 +56,14 @@ export const bannedword: Command = {
 					interaction.options.getString("word")!
 				)
 			);
+		} else {
+			const query = await ServerConfig.findOne({
+				serverId: interaction.guildId,
+			});
+
+			const bannedWords = query?.bannedWordConfig;
+
+			interaction.reply(`\`\`\`\n${bannedWords}\n\`\`\``);
 		}
 	},
 };

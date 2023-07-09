@@ -12,6 +12,12 @@ interface AlexConfig {
 	noBinary: boolean;
 }
 
+const listSubCommand = () => {
+	return new SlashCommandSubcommandBuilder()
+		.setName("list")
+		.setDescription("the allow list");
+};
+
 const addSubCommand = () => {
 	return new SlashCommandSubcommandBuilder()
 		.setName("add")
@@ -41,15 +47,26 @@ export const allow: Command = {
 		.setName("allow")
 		.setDescription("allow certain group of words")
 		.addSubcommand(addSubCommand)
-		.addSubcommand(deleteSubCommand),
+		.addSubcommand(deleteSubCommand)
+		.addSubcommand(listSubCommand),
 	run: async (bot, interaction) => {
 		if (interaction.options.getSubcommand() === "add") {
 			interaction.reply(
 				await addWord(bot, interaction, interaction.options.getString("id")!)
 			);
-		} else {
+		} else if (interaction.options.getSubcommand() === "delete") {
 			interaction.reply(
 				await deleteWord(bot, interaction, interaction.options.getString("id")!)
+			);
+		} else {
+			const query = await ServerConfig.findOne({
+				serverId: interaction.guildId,
+			});
+
+			const bannedWords = query?.alexConfig?.allow;
+
+			interaction.reply(
+				`see here: <https://github.com/retextjs/retext-equality/blob/main/rules.md>\n\`\`\`\n${bannedWords}\n\`\`\``
 			);
 		}
 	},
