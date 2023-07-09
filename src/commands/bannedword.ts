@@ -85,9 +85,9 @@ async function deleteWord(
 			bannedWordConfig: updated!.bannedWordConfig!,
 		};
 
-		return `Successfully deleted the word "${wordToDelete}" from the allow list.`;
+		return `Successfully deleted the word "${wordToDelete}" from the banned list.`;
 	} else {
-		return `The word "${wordToDelete}" does not exist in the allow list.`;
+		return `The word "${wordToDelete}" does not exist in the banned list.`;
 	}
 }
 
@@ -119,8 +119,8 @@ async function addWord(
 			bannedWordConfig: updated!.bannedWordConfig!,
 		};
 
-		return `Successfully added the word "${wordToAdd}" to the allow list.`;
+		return `Successfully added the word "${wordToAdd}" to the banned list.`;
 	} else {
-		return `The word "${wordToAdd}" already exists in the allow list.`;
+		return `The word "${wordToAdd}" already exists in the banned list.`;
 	}
 }
