@@ -18,6 +18,12 @@ const addSubCommand = () => {
 		);
 };
 
+const clearSubCommand = () => {
+	return new SlashCommandSubcommandBuilder()
+		.setName("clear")
+		.setDescription("clear all words in the banned list");
+};
+
 const listSubCommand = () => {
 	return new SlashCommandSubcommandBuilder()
 		.setName("list")
@@ -42,6 +48,7 @@ export const bannedword: Command = {
 		.setDescription("edit list of the banned words")
 		.addSubcommand(listSubCommand)
 		.addSubcommand(addSubCommand)
+		.addSubcommand(clearSubCommand)
 		.addSubcommand(deleteSubCommand),
 	run: async (bot, interaction) => {
 		if (interaction.options.getSubcommand() === "add") {
@@ -56,6 +63,8 @@ export const bannedword: Command = {
 					interaction.options.getString("word")!
 				)
 			);
+		} else if (interaction.options.getSubcommand() === "clear") {
+			interaction.reply(await clearWords(bot, interaction));
 		} else {
 			const query = await ServerConfig.findOne({
 				serverId: interaction.guildId,
@@ -70,6 +79,29 @@ export const bannedword: Command = {
 
 import ServerConfig from "../database/models/ServerConfig";
 import { ExtendedClient } from "../interfaces/ExtendedClient";
+
+async function clearWords(
+	bot: ExtendedClient,
+	interaction: CommandInteraction
+) {
+	const updated = await ServerConfig.findOneAndUpdate(
+		{
+			serverId: interaction.guildId,
+		},
+		{
+			$set: { bannedWordConfig: [] },
+		},
+		{ new: true }
+	);
+
+	const cache = bot.cache[interaction.guildId as string];
+	bot.cache[interaction.guildId as string] = {
+		alexConfig: cache.alexConfig,
+		bannedWordConfig: updated!.bannedWordConfig!,
+	};
+
+	return `Successfully deleted the all words in the banned list.`;
+}
 
 async function deleteWord(
 	bot: ExtendedClient,
